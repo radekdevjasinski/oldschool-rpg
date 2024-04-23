@@ -13,6 +13,7 @@ public class EnemyAI : MonoBehaviour
     [Header("Attacking")]
     public float timeBetweenAttacks;
     bool alreadyAttacked;
+    bool isDissolving = false;
 
     [Header("States")]
     public float attackRange;
@@ -25,6 +26,11 @@ public class EnemyAI : MonoBehaviour
     private float hp;
     public GameObject killCount;
 
+    public List<DissolveScript> dissolveScripts = new List<DissolveScript>();
+    public List<Rigidbody> rigidbodies = new List<Rigidbody>();
+    public Collider mainCollider;
+    bool forceApplied = false;
+
     void Awake()
     {
         player = GameObject.Find("Player").transform;
@@ -33,13 +39,28 @@ public class EnemyAI : MonoBehaviour
 
 
         hp = maxHP;
+
+        DissolveScript[] dissolveScriptArray = GetComponentsInChildren<DissolveScript>();
+        dissolveScripts.AddRange(dissolveScriptArray);
+
+        Rigidbody[] rigidbodyArray = GetComponentsInChildren<Rigidbody>();
+        rigidbodies.AddRange(rigidbodyArray);
+
+        foreach (Rigidbody rb in rigidbodies)
+        {
+            rb.isKinematic = true;
+        }
+        mainCollider = transform.Find("Collider").GetComponentInChildren<Collider>();
     }
 
     void Update()
     {
-        playerInAttackRange = Physics.CheckSphere(transform.position, attackRange, playerMask);
-        ChasePlayer();
-        if (playerInAttackRange) AttackPlayer();
+        if (!isDissolving)
+        {
+            playerInAttackRange = Physics.CheckSphere(transform.position, attackRange, playerMask);
+            ChasePlayer();
+            if (playerInAttackRange) AttackPlayer();
+        }
     }
     void ChasePlayer()
     {
@@ -70,9 +91,32 @@ public class EnemyAI : MonoBehaviour
         hp -= 50f;
         if (hp <= 0)
         {
-            Destroy(gameObject);
+            isDissolving = true;
+
+            foreach (DissolveScript dissolveScript in dissolveScripts)
+            {
+                dissolveScript.StartDissolver();
+            }
+
+            if (!forceApplied)
+            {
+                foreach (Rigidbody rb in rigidbodies)
+                {
+                    rb.isKinematic = false;
+                    rb.AddForce(Random.onUnitSphere * 0.1f, ForceMode.Impulse);
+                }
+                forceApplied = true;
+            }
+            //Invoke(nameof(DisableCollider), 1f);
+
+            Destroy(gameObject,1.5f);
             killCount.GetComponent<KillCount>().AddKill();
         }
+    }
+
+    void DisableCollider()
+    {
+        mainCollider.enabled = false;
     }
 
 }
