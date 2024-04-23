@@ -28,6 +28,8 @@ public class EnemyAI : MonoBehaviour
 
     public List<DissolveScript> dissolveScripts = new List<DissolveScript>();
     public List<Rigidbody> rigidbodies = new List<Rigidbody>();
+    public Collider mainCollider;
+    bool forceApplied = false;
 
     void Awake()
     {
@@ -48,6 +50,7 @@ public class EnemyAI : MonoBehaviour
         {
             rb.isKinematic = true;
         }
+        mainCollider = transform.Find("Collider").GetComponentInChildren<Collider>();
     }
 
     void Update()
@@ -95,15 +98,25 @@ public class EnemyAI : MonoBehaviour
                 dissolveScript.StartDissolver();
             }
 
-            foreach (Rigidbody rb in rigidbodies)
+            if (!forceApplied)
             {
-                rb.isKinematic = false;
-                rb.AddForce(Random.onUnitSphere * 0.1f, ForceMode.Impulse);
+                foreach (Rigidbody rb in rigidbodies)
+                {
+                    rb.isKinematic = false;
+                    rb.AddForce(Random.onUnitSphere * 0.1f, ForceMode.Impulse);
+                }
+                forceApplied = true;
             }
+            //Invoke(nameof(DisableCollider), 1f);
 
             Destroy(gameObject,1.5f);
             killCount.GetComponent<KillCount>().AddKill();
         }
+    }
+
+    void DisableCollider()
+    {
+        mainCollider.enabled = false;
     }
 
 }
