@@ -16,8 +16,8 @@ TagManager:
   - wall
   - player
   - enemy
-  - 
-  - 
+  - ignorePlayer
+  - PostProcessing
   - 
   - 
   - 

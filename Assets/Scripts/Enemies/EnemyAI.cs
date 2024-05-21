@@ -27,6 +27,7 @@ public class EnemyAI : MonoBehaviour
     public GameObject killCount;
 
     public List<DissolveScript> dissolveScripts = new List<DissolveScript>();
+    public List<IgnorePlayerCollision> ignorePlayerCollisions = new List<IgnorePlayerCollision>();
     public List<Rigidbody> rigidbodies = new List<Rigidbody>();
     public Collider mainCollider;
     bool forceApplied = false;
@@ -42,6 +43,9 @@ public class EnemyAI : MonoBehaviour
 
         DissolveScript[] dissolveScriptArray = GetComponentsInChildren<DissolveScript>();
         dissolveScripts.AddRange(dissolveScriptArray);
+
+        IgnorePlayerCollision[] ignorePlayerCollisionsArray = GetComponentsInChildren<IgnorePlayerCollision>();
+        ignorePlayerCollisions.AddRange(ignorePlayerCollisionsArray);
 
         Rigidbody[] rigidbodyArray = GetComponentsInChildren<Rigidbody>();
         rigidbodies.AddRange(rigidbodyArray);
@@ -89,13 +93,17 @@ public class EnemyAI : MonoBehaviour
     public void Damage()
     {
         hp -= 50f;
-        if (hp <= 0)
+        if (hp == 0)
         {
             isDissolving = true;
 
             foreach (DissolveScript dissolveScript in dissolveScripts)
             {
                 dissolveScript.StartDissolver();
+            }
+            foreach (IgnorePlayerCollision ignorePlayerCollision in ignorePlayerCollisions)
+            {
+                ignorePlayerCollision.setIgnorePlayer(true);
             }
 
             if (!forceApplied)
