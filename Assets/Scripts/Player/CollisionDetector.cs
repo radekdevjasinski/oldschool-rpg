@@ -5,7 +5,7 @@ using UnityEngine;
 public class CollisionDetector : MonoBehaviour
 {
     public WeaponController controller;
-    void OnTriggerEnter(Collider other)
+    void OnTriggerStay(Collider other)
     {
         if (other.CompareTag("Enemy") && controller.isAttacking)
         {
