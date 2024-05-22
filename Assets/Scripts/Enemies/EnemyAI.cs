@@ -30,6 +30,7 @@ public class EnemyAI : MonoBehaviour
     public List<IgnorePlayerCollision> ignorePlayerCollisions = new List<IgnorePlayerCollision>();
     public List<Rigidbody> rigidbodies = new List<Rigidbody>();
     public Collider mainCollider;
+    public GameObject game;
     bool forceApplied = false;
 
     void Awake()
@@ -37,6 +38,7 @@ public class EnemyAI : MonoBehaviour
         player = GameObject.Find("Player").transform;
         killCount = GameObject.Find("Count");
         agent = GetComponent<NavMeshAgent>();
+        game = GameObject.Find("Game");
 
 
         hp = maxHP;
@@ -119,6 +121,7 @@ public class EnemyAI : MonoBehaviour
 
             Destroy(gameObject,1.5f);
             killCount.GetComponent<KillCount>().AddKill();
+            game.GetComponent<LightDecrese>().AddTorch(0.3f);
         }
     }
 
