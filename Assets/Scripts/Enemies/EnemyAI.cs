@@ -33,6 +33,9 @@ public class EnemyAI : MonoBehaviour
     public GameObject game;
     bool forceApplied = false;
 
+    [Header("Blood Effect")]
+    public GameObject bloodPrefab;
+
     void Awake()
     {
         player = GameObject.Find("Player").transform;
@@ -118,6 +121,9 @@ public class EnemyAI : MonoBehaviour
                 forceApplied = true;
             }
             //Invoke(nameof(DisableCollider), 1f);
+
+            GameObject blood = Instantiate(bloodPrefab, transform.position + Vector3.up * 2f, Quaternion.identity);
+            Destroy(blood, 1f);
 
             Destroy(gameObject,1.5f);
             killCount.GetComponent<KillCount>().AddKill();

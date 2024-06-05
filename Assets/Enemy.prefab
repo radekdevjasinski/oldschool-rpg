@@ -811,6 +811,8 @@ MonoBehaviour:
   ignorePlayerCollisions: []
   rigidbodies: []
   mainCollider: {fileID: 0}
+  game: {fileID: 0}
+  bloodPrefab: {fileID: 2387901220800154601, guid: 683d6baf12001654dae6d677c694c5f1, type: 3}
 --- !u!54 &8003570159050838470
 Rigidbody:
   m_ObjectHideFlags: 0
