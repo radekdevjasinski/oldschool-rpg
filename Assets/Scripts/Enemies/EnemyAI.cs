@@ -123,7 +123,7 @@ public class EnemyAI : MonoBehaviour
             //Invoke(nameof(DisableCollider), 1f);
 
             GameObject blood = Instantiate(bloodPrefab, transform.position + Vector3.up * 2f, Quaternion.identity);
-            Destroy(blood, 1f);
+            Destroy(blood, 10f);
 
             Destroy(gameObject,1.5f);
             killCount.GetComponent<KillCount>().AddKill();
