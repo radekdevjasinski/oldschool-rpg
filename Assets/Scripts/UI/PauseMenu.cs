@@ -57,4 +57,8 @@ public class PauseMenu : MonoBehaviour
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
     }
+    public void ExitGame()
+    {
+        Application.Quit();
+    }
 }
