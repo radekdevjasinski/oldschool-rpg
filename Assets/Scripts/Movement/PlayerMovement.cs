@@ -41,7 +41,7 @@ public class PlayerMovement : MonoBehaviour
     {
         PlayerInput();
         SpeedControl();
-        rb.drag = drag;
+        rb.linearDamping = drag;
 
         SprintControl();
         SprintSpeed();
@@ -67,12 +67,12 @@ public class PlayerMovement : MonoBehaviour
     }
     void SpeedControl()
     {
-        Vector3 flatVelocity = new Vector3(rb.velocity.x, 0, rb.velocity.z);
+        Vector3 flatVelocity = new Vector3(rb.linearVelocity.x, 0, rb.linearVelocity.z);
 
         if (flatVelocity.magnitude > speed)
         {
             Vector3 limitedVelocity = flatVelocity.normalized * speed;
-            rb.velocity = new Vector3(limitedVelocity.x, rb.velocity.y, limitedVelocity.z); 
+            rb.linearVelocity = new Vector3(limitedVelocity.x, rb.linearVelocity.y, limitedVelocity.z); 
         }
     }
     void SprintControl()
