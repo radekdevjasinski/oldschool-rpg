@@ -10,6 +10,7 @@ public class PlayerMovement : MonoBehaviour
     public Transform orientation;
     [SerializeField]
     private float speed;
+    public Animator animator;
 
     float horizontalInput;
     float verticalInput;
@@ -50,6 +51,7 @@ public class PlayerMovement : MonoBehaviour
     void FixedUpdate()
     {
         MovePlayer();
+        animator.SetFloat("speed", rb.linearVelocity.magnitude);
     }
 
     void PlayerInput()

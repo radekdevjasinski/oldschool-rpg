@@ -13,7 +13,6 @@ public class EnemyAI : MonoBehaviour
     [Header("Attacking")]
     public float timeBetweenAttacks;
     bool alreadyAttacked;
-    bool isDissolving = false;
 
     [Header("States")]
     public float attackRange;
@@ -26,50 +25,28 @@ public class EnemyAI : MonoBehaviour
     private float hp;
     public GameObject killCount;
 
-    public List<DissolveScript> dissolveScripts = new List<DissolveScript>();
-    public List<IgnorePlayerCollision> ignorePlayerCollisions = new List<IgnorePlayerCollision>();
-    public List<Rigidbody> rigidbodies = new List<Rigidbody>();
-    public Collider mainCollider;
+    private Rigidbody[] ragdollBodies;
     public GameObject game;
-    bool forceApplied = false;
 
-    [Header("Blood Effect")]
-    public GameObject bloodPrefab;
 
-    void Awake()
+    void Start()
     {
         player = GameObject.Find("Player").transform;
         killCount = GameObject.Find("Count");
         agent = GetComponent<NavMeshAgent>();
         game = GameObject.Find("Game");
+        ragdollBodies = GetComponentsInChildren<Rigidbody>();
+        SetRagdollState(false);
 
 
         hp = maxHP;
-
-        DissolveScript[] dissolveScriptArray = GetComponentsInChildren<DissolveScript>();
-        dissolveScripts.AddRange(dissolveScriptArray);
-
-        IgnorePlayerCollision[] ignorePlayerCollisionsArray = GetComponentsInChildren<IgnorePlayerCollision>();
-        ignorePlayerCollisions.AddRange(ignorePlayerCollisionsArray);
-
-        Rigidbody[] rigidbodyArray = GetComponentsInChildren<Rigidbody>();
-        rigidbodies.AddRange(rigidbodyArray);
-
-        foreach (Rigidbody rb in rigidbodies)
-        {
-            rb.isKinematic = true;
-        }
-        mainCollider = transform.Find("Collider").GetComponentInChildren<Collider>();
     }
 
     void Update()
     {
-        if (!isDissolving)
-        {
-            playerInAttackRange = Physics.CheckSphere(transform.position, attackRange, playerMask);
-            ChasePlayer();
-            if (playerInAttackRange) AttackPlayer();
-        }
+        playerInAttackRange = Physics.CheckSphere(transform.position, attackRange, playerMask);
+        ChasePlayer();
+        if (playerInAttackRange) AttackPlayer();
     }
     void ChasePlayer()
     {
@@ -97,43 +74,19 @@ public class EnemyAI : MonoBehaviour
 
     public void Damage()
     {
-        hp -= 50f;
-        if (hp == 0)
+        Destroy(gameObject,5f);
+        SetRagdollState(true);
+        killCount.GetComponent<KillCount>().AddKill();
+        gameObject.GetComponentInChildren<Animator>().enabled = false;
+        gameObject.GetComponent<NavMeshAgent>().enabled = false;
+        gameObject.GetComponent<EnemyAI>().enabled = false;
+
+    }
+    private void SetRagdollState(bool state)
+    {
+        foreach (var rb in ragdollBodies)
         {
-            isDissolving = true;
-
-            foreach (DissolveScript dissolveScript in dissolveScripts)
-            {
-                dissolveScript.StartDissolver();
-            }
-            foreach (IgnorePlayerCollision ignorePlayerCollision in ignorePlayerCollisions)
-            {
-                ignorePlayerCollision.setIgnorePlayer(true);
-            }
-
-            if (!forceApplied)
-            {
-                foreach (Rigidbody rb in rigidbodies)
-                {
-                    rb.isKinematic = false;
-                    rb.AddForce(Random.onUnitSphere * 0.1f, ForceMode.Impulse);
-                }
-                forceApplied = true;
-            }
-            //Invoke(nameof(DisableCollider), 1f);
-
-            GameObject blood = Instantiate(bloodPrefab, transform.position + Vector3.up * 2f, Quaternion.identity);
-            Destroy(blood, 10f);
-
-            Destroy(gameObject,1.5f);
-            killCount.GetComponent<KillCount>().AddKill();
-            game.GetComponent<LightDecrese>().AddTorch(0.3f);
+            rb.isKinematic = !state;
         }
     }
-
-    void DisableCollider()
-    {
-        mainCollider.enabled = false;
-    }
-
 }
