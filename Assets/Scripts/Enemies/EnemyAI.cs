@@ -10,83 +10,94 @@ public class EnemyAI : MonoBehaviour
     public Transform player;
     public LayerMask playerMask;
 
-    [Header("Attacking")]
-    public float timeBetweenAttacks;
-    bool alreadyAttacked;
-
-    [Header("States")]
-    public float attackRange;
-    public bool playerInAttackRange;
-
     [Header("HitPoints")]
     public float maxHP = 100f;
     public float playerDMG = 50f;
     [SerializeField]
-    private float hp;
-    public GameObject killCount;
+    //public GameObject killCount;
 
     private Rigidbody[] ragdollBodies;
+    [SerializeField]
+    private GameObject playerBlocker;
     public GameObject game;
 
 
     void Start()
     {
         player = GameObject.Find("Player").transform;
-        killCount = GameObject.Find("Count");
+        //killCount = GameObject.Find("Count");
         agent = GetComponent<NavMeshAgent>();
         game = GameObject.Find("Game");
-        ragdollBodies = GetComponentsInChildren<Rigidbody>();
         SetRagdollState(false);
 
-
-        hp = maxHP;
     }
 
     void Update()
     {
-        playerInAttackRange = Physics.CheckSphere(transform.position, attackRange, playerMask);
         ChasePlayer();
-        if (playerInAttackRange) AttackPlayer();
     }
     void ChasePlayer()
     {
         agent.SetDestination(player.position);
         transform.LookAt(player);
     }
-    void AttackPlayer()
+
+    public void Damage(Vector3 hitPoint, Vector3 forceDirection, float forceAmount = 250f)
     {
-        agent.SetDestination(transform.position);
+        Destroy(gameObject, 5f);
+        Destroy(playerBlocker);
+        SetRagdollState(true);
+        SetRagdollLayer(this.transform);
+        //killCount.GetComponent<KillCount>().AddKill();
+        Destroy(gameObject.GetComponentInChildren<Animator>());
+        Destroy(gameObject.GetComponent<NavMeshAgent>());
+        Destroy(gameObject.GetComponent<EnemyAI>());
 
-        transform.LookAt(player);
+        // Znajdź najbliższą kość (Rigidbody) względem punktu trafienia
+        Rigidbody closestRb = null;
+        float closestDistance = float.MaxValue;
 
-        if (!alreadyAttacked)
+        foreach (var rb in GetComponentsInChildren<Rigidbody>())
         {
-            player.GetComponent<PlayerHealth>().TakeDamage();
+            float dist = Vector3.Distance(hitPoint, rb.worldCenterOfMass);
+            if (dist < closestDistance)
+            {
+                closestDistance = dist;
+                closestRb = rb;
+            }
+        }
 
-            alreadyAttacked = true;
-            Invoke(nameof(ResetAttack), timeBetweenAttacks);
+        // Dodaj siłę
+        if (closestRb != null)
+        {
+            closestRb.AddForce(forceDirection.normalized * (forceAmount / 2.5f), ForceMode.Impulse);
+        }
+
+        // Rozdziel siłę na wszystkie Rigidbody
+        Rigidbody[] rigidbodies = GetComponentsInChildren<Rigidbody>();
+        foreach (var rb in rigidbodies)
+        {
+            if (rb == closestRb) continue;
+            rb.AddForce(forceDirection.normalized * (forceAmount / rigidbodies.Length), ForceMode.Impulse);
         }
     }
-    void ResetAttack()
-    {
-        alreadyAttacked = false;
-    }
 
-    public void Damage()
-    {
-        Destroy(gameObject,5f);
-        SetRagdollState(true);
-        killCount.GetComponent<KillCount>().AddKill();
-        gameObject.GetComponentInChildren<Animator>().enabled = false;
-        gameObject.GetComponent<NavMeshAgent>().enabled = false;
-        gameObject.GetComponent<EnemyAI>().enabled = false;
 
-    }
     private void SetRagdollState(bool state)
     {
+        ragdollBodies = GetComponentsInChildren<Rigidbody>();
         foreach (var rb in ragdollBodies)
         {
             rb.isKinematic = !state;
+            rb.interpolation = state ? RigidbodyInterpolation.Interpolate : RigidbodyInterpolation.None;
         }
     }
+    void SetRagdollLayer(Transform root, string layerName = "ragdoll")
+{
+    int layer = LayerMask.NameToLayer(layerName);
+    foreach (Transform t in root.GetComponentsInChildren<Transform>())
+    {
+        t.gameObject.layer = layer;
+    }
+}
 }

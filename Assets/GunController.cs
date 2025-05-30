@@ -45,7 +45,7 @@ public class GunController : MonoBehaviour
             EnemyAI enemy = hit.collider.GetComponentInParent<EnemyAI>();
             if (enemy!=null)
             {
-                enemy.Damage();
+                enemy.Damage(hit.point, hit.point - cam.transform.position);
                 GameObject bloodPS = Instantiate(bloodPrefab, hit.collider.transform.position, Quaternion.identity);
                 bloodPS.GetComponent<ParticleSystem>().Play();
                 Destroy(bloodPS, 5f);

@@ -63,9 +63,12 @@ public class PlayerMovement : MonoBehaviour
 
     void MovePlayer()
     {
-        moveDirection = orientation.forward * verticalInput + orientation.right * horizontalInput;
-        rb.AddForce(moveDirection * speed * 10f, ForceMode.Force);
+        // Płaska wersja forward i right (ignoruj Y)
+        Vector3 flatForward = Vector3.ProjectOnPlane(orientation.forward, Vector3.up).normalized;
+        Vector3 flatRight = Vector3.ProjectOnPlane(orientation.right, Vector3.up).normalized;
 
+        moveDirection = flatForward * verticalInput + flatRight * horizontalInput;
+        rb.AddForce(moveDirection * speed * 10f, ForceMode.Force);
     }
     void SpeedControl()
     {

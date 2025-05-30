@@ -8,11 +8,13 @@ public class PlayerHealth : MonoBehaviour
 {
     [Header("PlayerHealth")]
     public float maxHP = 100;
-    public float damageTaken = 20;
-    [SerializeField]
-    private float health;
+    public float health;
     public Image endImage;
 
+    [Header("Damage Settings")]
+    public float damageRange = 5f;
+    public float damageAmount = 1f;
+    public LayerMask damageLayer;
     
     void Start()
     {
@@ -24,11 +26,13 @@ public class PlayerHealth : MonoBehaviour
         if (health <= 0) Die();
         if (Input.GetKeyDown(KeyCode.R)) SceneManager.LoadScene(0);
 
+        Collider[] attackingObjects = Physics.OverlapSphere(transform.position, damageRange, damageLayer);  
+        foreach (Collider collider in attackingObjects)
+        {
+            health -= damageAmount * Time.deltaTime;
+        }
     }
-    public void TakeDamage()
-    {
-        health -= damageTaken;
-    }
+
     void Die()
     {
         PlayerMovement movement = GetComponent<PlayerMovement>();
@@ -39,9 +43,5 @@ public class PlayerHealth : MonoBehaviour
         Destroy(weaponController);
         endImage.color = new Color32(50, 0, 0, 230);
 
-    }
-    public float ReadHP()
-    {
-        return health;
     }
 }

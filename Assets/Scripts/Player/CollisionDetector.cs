@@ -9,7 +9,7 @@ public class CollisionDetector : MonoBehaviour
     {
         if (other.CompareTag("Enemy") && controller.isAttacking)
         {
-            other.GetComponentInParent<EnemyAI>().Damage();
+            //other.GetComponentInParent<EnemyAI>().Damage();
         }
     }
 }

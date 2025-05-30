@@ -18,6 +18,6 @@ public class HPSlider : MonoBehaviour
 
     void Update()
     {
-        slider.value = playerHealth.ReadHP();
+        slider.value = playerHealth.health;
     }
 }
