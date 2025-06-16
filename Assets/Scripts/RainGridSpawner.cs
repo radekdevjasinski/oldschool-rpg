@@ -26,9 +26,16 @@ public class RainGridSpawner : MonoBehaviour
             {
                 Vector3 position = new Vector3(x * gridSpacing, 25, z * gridSpacing) - center;
                 GameObject rainObject = Instantiate(rainParticlePrefab, position, Quaternion.identity);
-                rainObject.transform.parent = this.transform; // Optional: parent to the spawner for organization
+                rainObject.transform.parent = this.transform;
+
                 ParticleSystem rainParticleSystem = rainObject.GetComponent<ParticleSystem>();
+
+                var main = rainParticleSystem.main;
+                main.playOnAwake = false;
+                main.simulationSpace = ParticleSystemSimulationSpace.World; // optional but useful for grid rain
+                rainParticleSystem.Stop(); // Start with rain stopped
                 rainParticleSystems.Add(rainParticleSystem);
+                
             }
         }
     }

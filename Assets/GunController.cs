@@ -14,10 +14,26 @@ public class GunController : MonoBehaviour
     public GunFlashLight gunFlashLight;
 
 
-    public LayerMask hitMask;        
+    public LayerMask hitMask;
+    private FPSCamera fPSCamera;
 
+    void Start()
+    {
+        GameObject cameraObject = Camera.main.gameObject;
+        fPSCamera = cameraObject.GetComponent<FPSCamera>();
+
+        
+    }
     void Update()
     {
+        if (fPSCamera.lockMovement)
+        {
+            return; // If camera movement is locked, do not allow shooting
+        }
+        if( PauseMenu.isGamePaused)
+        {
+            return; // If the game is paused, do not allow shooting
+        }
         if (Input.GetMouseButtonDown(0))
         {
             Shoot();
@@ -33,6 +49,7 @@ public class GunController : MonoBehaviour
         fpsAnimator.SetTrigger("shoot");
         muzzleFlash.Play();
         gunFlashLight.TriggerFlash();
+        AudioManager.Instance.PlaySFX("shoot");
         canShoot = false;
         StartCoroutine(shootCooldown());
 
@@ -43,12 +60,13 @@ public class GunController : MonoBehaviour
         if (Physics.Raycast(ray, out hit, range, hitMask))
         {
             EnemyAI enemy = hit.collider.GetComponentInParent<EnemyAI>();
-            if (enemy!=null)
+            if (enemy != null)
             {
                 enemy.Damage(hit.point, hit.point - cam.transform.position);
                 GameObject bloodPS = Instantiate(bloodPrefab, hit.collider.transform.position, Quaternion.identity);
                 bloodPS.GetComponent<ParticleSystem>().Play();
                 Destroy(bloodPS, 5f);
+                AudioManager.Instance.PlaySFX("zombie_hit");
             }
         }
     }

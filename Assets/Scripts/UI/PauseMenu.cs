@@ -11,12 +11,13 @@ public class PauseMenu : MonoBehaviour
     public static bool isGamePaused = false;
 
     public GameObject pauseMenu;
+    public GameObject x;
 
     private void Update()
     {
         if (Input.GetKeyDown(KeyCode.Escape))
         {
-            if(isGamePaused)
+            if (isGamePaused)
             {
                 Resume();
             }
@@ -48,6 +49,7 @@ public class PauseMenu : MonoBehaviour
         isGamePaused = true;
         Cursor.lockState = CursorLockMode.Confined;
         Cursor.visible = true;
+        x.SetActive(false);
     }
     public void Resume()
     {
@@ -56,9 +58,13 @@ public class PauseMenu : MonoBehaviour
         isGamePaused = false;
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
+        x.SetActive(true);
     }
     public void ExitGame()
     {
         Application.Quit();
+        #if UNITY_EDITOR
+                UnityEditor.EditorApplication.isPlaying = false; // Stop playing in the editor
+        #endif
     }
 }

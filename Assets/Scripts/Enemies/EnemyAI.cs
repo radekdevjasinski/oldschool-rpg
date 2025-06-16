@@ -13,8 +13,9 @@ public class EnemyAI : MonoBehaviour
     [Header("HitPoints")]
     public float maxHP = 100f;
     public float playerDMG = 50f;
+    public bool isDead = false;
     [SerializeField]
-    //public GameObject killCount;
+    public GameObject killCount;
 
     private Rigidbody[] ragdollBodies;
     [SerializeField]
@@ -25,7 +26,7 @@ public class EnemyAI : MonoBehaviour
     void Start()
     {
         player = GameObject.Find("Player").transform;
-        //killCount = GameObject.Find("Count");
+        killCount = GameObject.Find("Count");
         agent = GetComponent<NavMeshAgent>();
         game = GameObject.Find("Game");
         SetRagdollState(false);
@@ -44,11 +45,11 @@ public class EnemyAI : MonoBehaviour
 
     public void Damage(Vector3 hitPoint, Vector3 forceDirection, float forceAmount = 250f)
     {
-        Destroy(gameObject, 5f);
+        //Destroy(gameObject, 5f);
         Destroy(playerBlocker);
         SetRagdollState(true);
         SetRagdollLayer(this.transform);
-        //killCount.GetComponent<KillCount>().AddKill();
+        killCount.GetComponent<KillCount>().AddKill();
         Destroy(gameObject.GetComponentInChildren<Animator>());
         Destroy(gameObject.GetComponent<NavMeshAgent>());
         Destroy(gameObject.GetComponent<EnemyAI>());
@@ -80,6 +81,7 @@ public class EnemyAI : MonoBehaviour
             if (rb == closestRb) continue;
             rb.AddForce(forceDirection.normalized * (forceAmount / rigidbodies.Length), ForceMode.Impulse);
         }
+        isDead = true;
     }
 
 
@@ -93,11 +95,11 @@ public class EnemyAI : MonoBehaviour
         }
     }
     void SetRagdollLayer(Transform root, string layerName = "ragdoll")
-{
-    int layer = LayerMask.NameToLayer(layerName);
-    foreach (Transform t in root.GetComponentsInChildren<Transform>())
     {
-        t.gameObject.layer = layer;
+        int layer = LayerMask.NameToLayer(layerName);
+        foreach (Transform t in root.GetComponentsInChildren<Transform>())
+        {
+            t.gameObject.layer = layer;
+        }
     }
-}
 }

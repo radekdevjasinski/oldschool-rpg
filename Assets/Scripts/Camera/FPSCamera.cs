@@ -11,6 +11,8 @@ public class FPSCamera : MonoBehaviour
     float rotationX;
     float rotationY;
 
+    public bool lockMovement = false;
+
     void Start()
     {
         Cursor.lockState = CursorLockMode.Locked;
@@ -19,6 +21,7 @@ public class FPSCamera : MonoBehaviour
 
     void Update()
     {
+        if (lockMovement) return;
         float mouseX = Input.GetAxisRaw("Mouse X") * Time.deltaTime * sens;
         float mouseY = Input.GetAxisRaw("Mouse Y") * Time.deltaTime * sens;
 

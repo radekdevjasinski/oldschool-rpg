@@ -6,7 +6,7 @@ public class EnemiesSpawner : MonoBehaviour
 {
     [Header("EnemiesSpawner")]
     public float spawnCooldown = 5;
-    public GameObject enemyPrefab;
+    public GameObject[] enemyPrefab;
     public Transform player;
     public float spawnDistance = 10f;
 
@@ -29,7 +29,7 @@ public class EnemiesSpawner : MonoBehaviour
             spawnPos = new Vector3(Random.Range(-60f, 60f), 0, Random.Range(-60f, 60f));
 
         } while (Vector3.Distance(spawnPos, player.position) <= spawnDistance);
-        GameObject enemy = Instantiate(enemyPrefab, spawnPos, Quaternion.identity, transform);
+        GameObject enemy = Instantiate(enemyPrefab[Random.Range(0, enemyPrefab.Length)], spawnPos, Quaternion.identity, transform);
         Invoke(nameof(Spawn), spawnCooldown);
     }
 }

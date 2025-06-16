@@ -11,6 +11,7 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField]
     private float speed;
     public Animator animator;
+    public bool movementEnabled = true;
 
     float horizontalInput;
     float verticalInput;
@@ -19,37 +20,36 @@ public class PlayerMovement : MonoBehaviour
 
     Rigidbody rb;
 
-    [Header("Stamina")]
-    public float staminaRegain = 1f;
-    public float staminaLose = 5f;
-    public float maxStamina = 100f;
-    public float speedChange = 2f;
-    [SerializeField]
-    private float stamina;
-    [SerializeField]
-    private bool isSprinting = false;
 
     void Start()
     {
         rb = GetComponent<Rigidbody>();
         rb.freezeRotation = true;
-
-        stamina = maxStamina;
         speed = speedDefault;
     }
 
     void Update()
     {
-        PlayerInput();
-        SpeedControl();
-        rb.linearDamping = drag;
-
-        SprintControl();
-        SprintSpeed();
+        if (movementEnabled)
+        {
+            PlayerInput();
+            SpeedControl();
+            rb.linearDamping = drag;
+        }
+        else
+        {
+            rb.linearDamping = 0f; // Disable drag when movement is not enabled
+            rb.linearVelocity = Vector3.zero; // Stop the player from moving
+        }
 
     }
     void FixedUpdate()
     {
+        if (!movementEnabled)
+        {
+            animator.SetFloat("speed", 0f);
+            return; 
+        }
         MovePlayer();
         animator.SetFloat("speed", rb.linearVelocity.magnitude);
     }
@@ -79,47 +79,5 @@ public class PlayerMovement : MonoBehaviour
             Vector3 limitedVelocity = flatVelocity.normalized * speed;
             rb.linearVelocity = new Vector3(limitedVelocity.x, rb.linearVelocity.y, limitedVelocity.z); 
         }
-    }
-    void SprintControl()
-    {
-        if (Input.GetKey(KeyCode.LeftShift))
-        {
-            if (stamina > 0)
-            {
-                isSprinting = true;
-            }
-            else
-            {
-                isSprinting = false;
-            }
-        }
-        else
-        {
-            isSprinting = false;
-        }
-    }
-    void SprintSpeed()
-    {
-        if (isSprinting)
-        {
-            speed = speedDefault * speedChange;
-            stamina -= staminaLose * Time.deltaTime;
-        }
-        else
-        {
-            speed = speedDefault;
-            if (stamina < maxStamina)
-            {
-                stamina += staminaRegain * Time.deltaTime;
-            }
-            else
-            {
-                stamina = maxStamina;
-            }
-        }
-    }
-    public float readStamina()
-    {
-        return stamina;
     }
 }
